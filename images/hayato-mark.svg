@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="隼人CLUB マーク">
+  <defs>
+    <linearGradient id="hm-red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d4191f"/>
+      <stop offset="1" stop-color="#8b0000"/>
+    </linearGradient>
+    <linearGradient id="hm-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e7cf7a"/>
+      <stop offset="0.5" stop-color="#c9a227"/>
+      <stop offset="1" stop-color="#b8860b"/>
+    </linearGradient>
+  </defs>
+  <!-- 外周リング（金） -->
+  <circle cx="60" cy="60" r="55" fill="#0e0f12"/>
+  <circle cx="60" cy="60" r="55" fill="none" stroke="url(#hm-gold)" stroke-width="2.5"/>
+  <!-- 隼（falcon）を抽象化した翼のシルエット -->
+  <path d="M60 24
+           C 48 40, 30 46, 20 58
+           C 34 56, 44 58, 52 66
+           C 40 66, 30 74, 24 88
+           C 40 78, 52 78, 60 84
+           C 68 78, 80 78, 96 88
+           C 90 74, 80 66, 68 66
+           C 76 58, 86 56, 100 58
+           C 90 46, 72 40, 60 24 Z"
+        fill="url(#hm-red)"/>
+  <!-- 中央の芯（金） -->
+  <circle cx="60" cy="60" r="6" fill="url(#hm-gold)"/>
+</svg>

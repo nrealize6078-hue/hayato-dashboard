@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>隼人CLUB 監督ダッシュボード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Shippori+Mincho:wght@500;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --red:#d4191f; --red-deep:#8b0000; --red-soft:#fff5f5;
+  --gold:#c9a227; --gold-2:#b8860b; --gold-3:#d4af37; --gold-deep:#8a6d12;
+  --text:#191b20; --muted:#6b7280; --line:#eceef1;
+  --card:#ffffff; --bg1:#fff5f5; --bg2:#ffffff; --bg3:#f6f7f9;
+  --good:#1f9d55; --bad:#d4191f;
+  --shadow:0 6px 20px rgba(20,20,30,.06), 0 2px 6px rgba(20,20,30,.05);
+  --shadow-lg:0 14px 40px rgba(20,20,30,.10);
+  --radius:16px;
+  --serif:"Shippori Mincho",serif;
+  --sans:"Noto Sans JP",system-ui,sans-serif;
+  --header-h:120px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--sans); color:var(--text); line-height:1.6;
+  background:
+    radial-gradient(1200px 420px at 50% -120px, rgba(212,25,31,.10), transparent 70%),
+    linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 240px, var(--bg3) 100%);
+  min-height:100vh; -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+.num-red{
+  background:linear-gradient(180deg,var(--red) 0%,var(--red-deep) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-weight:900;font-variant-numeric:tabular-nums;
+}
+.serif{font-family:var(--serif);}
+
+/* ---------- Header ---------- */
+header.top{
+  position:sticky;top:0;z-index:60;
+  background:rgba(255,255,255,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  box-shadow:0 2px 14px rgba(20,20,30,.05);
+}
+.top-inner{
+  max-width:1240px;margin:0 auto;padding:14px 20px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.burger{
+  width:44px;height:44px;border-radius:12px;border:1px solid var(--line);
+  background:#fff;display:flex;flex-direction:column;justify-content:center;
+  align-items:center;gap:4px;flex:0 0 auto;
+}
+.burger span{width:20px;height:2px;background:var(--text);border-radius:2px;}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;}
+.brand .logo-img{height:46px;width:auto;display:block;}
+.brand .logo-fallback{display:none;align-items:center;gap:10px;}
+.brand .logo-fallback .mk{height:44px;width:44px;}
+.wordmark{font-family:var(--serif);font-weight:800;font-size:26px;letter-spacing:.02em;
+  display:flex;align-items:baseline;gap:2px;line-height:1;}
+.wordmark .k{color:#0e0f12;}
+.wordmark .c{color:var(--red);font-family:var(--sans);font-weight:900;letter-spacing:.06em;}
+.subtitle{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px;}
+.top-spacer{flex:1 1 auto;}
+.period-menu{position:relative;}
+.period-btn{
+  border:1px solid var(--line);background:#fff;border-radius:12px;
+  padding:9px 14px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;
+}
+.period-btn .cur{color:var(--red);}
+.period-pop{
+  position:absolute;top:calc(100% + 8px);right:0;min-width:230px;
+  background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);
+  padding:8px;display:none;z-index:70;max-height:60vh;overflow:auto;
+}
+.period-pop.open{display:block;}
+.period-pop .grp{font-size:11px;color:var(--muted);font-weight:700;padding:8px 10px 4px;letter-spacing:.04em;}
+.period-pop button.opt{
+  display:block;width:100%;text-align:left;border:none;background:none;border-radius:9px;
+  padding:9px 10px;font-size:14px;font-weight:600;color:var(--text);
+}
+.period-pop button.opt:hover{background:var(--red-soft);}
+.period-pop button.opt.active{background:linear-gradient(90deg,var(--red),var(--red-deep));color:#fff;}
+.tools{display:flex;gap:8px;flex-wrap:wrap;}
+.tbtn{
+  border:1px solid var(--line);background:#fff;border-radius:11px;padding:8px 12px;
+  font-size:13px;font-weight:700;color:var(--text);display:inline-flex;align-items:center;gap:6px;
+}
+.tbtn:hover{border-color:var(--red);color:var(--red);}
+.tbtn.primary{background:linear-gradient(180deg,var(--red),var(--red-deep));color:#fff;border-color:transparent;}
+.tbtn.primary.on{background:linear-gradient(180deg,#1f9d55,#137a3f);}
+.pill-period{
+  width:100%;order:9;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-top:4px;font-size:13px;color:var(--muted);
+}
+.pill-period .pp{
+  background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;
+  font-weight:700;color:var(--text);display:inline-flex;align-items:center;gap:8px;
+}
+.pill-period .pp .tg{color:var(--red);}
+.pill-period .pp .rg{color:var(--gold-2);font-weight:800;font-variant-numeric:tabular-nums;}
+
+/* ---------- Filter bar ---------- */
+.filterbar{
+  max-width:1240px;margin:14px auto 0;padding:0 20px;
+}
+.filterbar .fb-inner{
+  background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+  padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.filterbar .fb-title{font-weight:800;font-size:14px;display:flex;align-items:center;gap:8px;}
+.filterbar select{
+  border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-family:inherit;
+  font-size:14px;font-weight:600;background:#fff;color:var(--text);
+}
+.filterbar .go{
+  background:linear-gradient(180deg,var(--gold-3),var(--gold-2));color:#3a2c00;border:none;
+  border-radius:10px;padding:9px 16px;font-weight:800;font-size:14px;
+}
+.filterbar .hint{color:var(--muted);font-size:12px;}
+
+/* ---------- Layout ---------- */
+main{max-width:1240px;margin:0 auto;padding:8px 20px 60px;}
+section{margin-top:34px;scroll-margin-top:140px;}
+.sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.sec-head h2{font-family:var(--serif);font-size:22px;margin:0;font-weight:800;letter-spacing:.01em;}
+.sec-head .sec-range{font-size:12px;color:var(--gold-2);font-weight:800;font-variant-numeric:tabular-nums;
+  background:#fff8e6;border:1px solid #f0e3b8;padding:3px 10px;border-radius:999px;}
+.sec-head .sec-sub{font-size:13px;color:var(--muted);}
+
+.grid{display:grid;gap:16px;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:18px;
+}
+.card.pad-lg{padding:20px 22px;}
+.kpi .k-label{font-size:13px;color:var(--muted);font-weight:700;}
+.kpi .k-val{font-size:34px;line-height:1.1;margin:6px 0 2px;}
+.kpi .k-val .u{font-size:15px;color:var(--muted);font-weight:700;-webkit-text-fill-color:var(--muted);margin-left:4px;}
+.kpi .k-delta{font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:4px;}
+.kpi .k-delta.up{color:var(--good);}
+.kpi .k-delta.down{color:var(--bad);}
+.kpi .k-delta.flat{color:var(--muted);}
+
+.card h3.c-title{font-family:var(--serif);font-size:16px;margin:0 0 12px;font-weight:800;}
+.chart-wrap{position:relative;height:280px;}
+.chart-wrap.sm{height:230px;}
+
+/* ranking list */
+.rank{list-style:none;margin:0;padding:0;}
+.rank li{
+  display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px dashed var(--line);
+}
+.rank li:last-child{border-bottom:none;}
+.rank .badge{
+  width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+  font-weight:900;font-size:13px;color:#fff;background:#c3c7cd;
+}
+.rank li:nth-child(1) .badge{background:linear-gradient(145deg,var(--gold-3),var(--gold-deep));color:#3a2c00;box-shadow:0 3px 8px rgba(201,162,39,.35);}
+.rank li:nth-child(2) .badge{background:linear-gradient(145deg,#d9dde3,#a7adb6);}
+.rank li:nth-child(3) .badge{background:linear-gradient(145deg,#e6b98a,#b5793f);}
+.rank .r-name{flex:1 1 auto;font-weight:700;font-size:14.5px;min-width:0;}
+.rank .r-bar{height:8px;border-radius:6px;background:var(--red-soft);position:relative;flex:1.4 1 0;overflow:hidden;}
+.rank .r-bar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--red),var(--red-deep));border-radius:6px;}
+.rank .r-count{flex:0 0 auto;font-weight:900;font-variant-numeric:tabular-nums;min-width:74px;text-align:right;}
+.rank .r-count .u{font-size:11px;color:var(--muted);font-weight:700;margin-left:3px;}
+
+/* gauge */
+.gauge-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.gauge-num{font-size:44px;font-weight:900;}
+.gauge-num small{font-size:16px;color:var(--muted);font-weight:700;}
+.gauge-sub{font-size:13px;color:var(--muted);}
+
+/* impact */
+.impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.impact-card{
+  position:relative;overflow:hidden;border-radius:var(--radius);padding:22px;
+  background:linear-gradient(160deg,#1a1c22 0%, #26130f 100%);color:#fff;
+  border:1px solid #2c2e36;box-shadow:var(--shadow-lg);
+}
+.impact-card::after{content:"";position:absolute;right:-30px;top:-30px;width:130px;height:130px;
+  border-radius:50%;background:radial-gradient(circle,rgba(212,25,31,.35),transparent 70%);}
+.impact-card .ic{font-size:26px;}
+.impact-card .num{font-size:38px;font-weight:900;font-variant-numeric:tabular-nums;margin:8px 0 0;
+  background:linear-gradient(180deg,#ffd873,#c9a227);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.impact-card .num .u{font-size:15px;color:#e8c979;-webkit-text-fill-color:#e8c979;margin-left:5px;font-weight:800;}
+.impact-card .cap{font-size:13px;color:#d7d9e0;margin-top:6px;position:relative;}
+
+/* voices */
+.voices{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.voice{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:18px 20px;position:relative;
+}
+.voice .stars{color:var(--gold-3);letter-spacing:2px;font-size:15px;}
+.voice .body{font-size:14.5px;margin:8px 0 12px;}
+.voice .who{font-size:13px;color:var(--muted);font-weight:700;}
+.voice .tag{display:inline-block;background:var(--red-soft);color:var(--red);font-size:11px;font-weight:800;
+  border-radius:999px;padding:3px 10px;margin-left:8px;}
+.voice .del{position:absolute;top:10px;right:10px;border:none;background:none;font-size:15px;display:none;color:var(--muted);}
+.add-voice{display:none;border:1px dashed var(--red);background:var(--red-soft);color:var(--red);
+  border-radius:var(--radius);padding:16px;font-weight:800;width:100%;}
+
+/* editor panel */
+.editor{display:none;margin-top:14px;border-top:1px dashed var(--line);padding-top:14px;}
+body.edit .editor{display:block;}
+.editor .eh{font-size:12px;font-weight:800;color:var(--gold-2);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.editor .rows{display:grid;gap:8px;}
+.editor .row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;}
+.editor .row.two{grid-template-columns:1fr auto auto;}
+.editor label{font-size:13px;color:var(--muted);font-weight:600;}
+.editor input{
+  border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-family:inherit;font-size:13px;
+  width:110px;text-align:right;font-variant-numeric:tabular-nums;
+}
+.editor input.txt{width:150px;text-align:left;}
+
+/* editable inline */
+body.edit [data-bind]{outline:1px dashed rgba(212,25,31,.4);outline-offset:2px;border-radius:4px;cursor:text;}
+body.edit [data-bind]:focus{outline:2px solid var(--red);background:#fff;}
+body.edit .voice .del,body.edit .add-voice{display:block;}
+.editmode-hint{display:none;}
+body.edit .editmode-hint{display:inline-flex;}
+
+/* nav drawer */
+.overlay{position:fixed;inset:0;background:rgba(10,10,15,.4);z-index:80;opacity:0;pointer-events:none;transition:.25s;}
+.overlay.open{opacity:1;pointer-events:auto;}
+nav.drawer{
+  position:fixed;top:0;left:0;height:100%;width:290px;background:#fff;z-index:90;
+  transform:translateX(-100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);
+  box-shadow:var(--shadow-lg);display:flex;flex-direction:column;
+}
+nav.drawer.open{transform:none;}
+nav.drawer .dh{padding:20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+nav.drawer .dh .t{font-family:var(--serif);font-weight:800;font-size:18px;}
+nav.drawer .dh .x{border:none;background:none;font-size:22px;color:var(--muted);}
+nav.drawer .links{padding:10px;overflow:auto;flex:1;}
+nav.drawer a{
+  display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;
+  font-weight:700;font-size:14.5px;color:var(--text);text-decoration:none;
+}
+nav.drawer a:hover{background:var(--red-soft);}
+nav.drawer a.active{background:linear-gradient(90deg,var(--red),var(--red-deep));color:#fff;}
+nav.drawer a .em{width:22px;text-align:center;}
+
+footer.foot{
+  border-top:1px solid var(--line);margin-top:50px;padding:26px 20px;text-align:center;
+  color:var(--muted);font-size:12.5px;background:rgba(255,255,255,.6);
+}
+footer.foot .fw{font-family:var(--serif);color:var(--text);font-weight:700;font-size:14px;margin-bottom:6px;}
+
+.hidden-file{display:none;}
+
+/* responsive */
+@media(max-width:980px){
+  .g4{grid-template-columns:repeat(2,1fr);}
+  .g3{grid-template-columns:repeat(2,1fr);}
+  .impact-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:560px){
+  .g4,.g3,.g2{grid-template-columns:1fr;}
+  .impact-grid{grid-template-columns:1fr;}
+  .voices{grid-template-columns:1fr;}
+  .filterbar .hint{display:none;}
+  .subtitle{display:none;}
+  .wordmark{font-size:22px;}
+  .kpi .k-val{font-size:28px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ========== NAV DRAWER ========== -->
+<div class="overlay" id="overlay"></div>
+<nav class="drawer" id="drawer" aria-label="セクションナビ">
+  <div class="dh">
+    <span class="t">目次</span>
+    <button class="x" id="navClose" aria-label="閉じる">×</button>
+  </div>
+  <div class="links" id="navLinks"></div>
+</nav>
+
+<!-- ========== HEADER ========== -->
+<header class="top">
+  <div class="top-inner">
+    <button class="burger" id="burger" aria-label="メニュー"><span></span><span></span><span></span></button>
+    <div class="brand">
+      <img class="logo-img" src="images/hayato-logo.png" alt="隼人CLUB"
+           onerror="this.style.display='none';document.getElementById('logoFb').style.display='flex';" />
+      <span class="logo-fallback" id="logoFb">
+        <img class="mk" src="images/hayato-mark.svg" alt="" />
+        <span class="wordmark"><span class="k">隼人</span><span class="c">CLUB</span></span>
+      </span>
+      <div style="display:flex;flex-direction:column;">
+        <span class="subtitle" style="margin-top:0;">監督ダッシュボード</span>
+      </div>
+    </div>
+
+    <span class="top-spacer"></span>
+
+    <div class="period-menu">
+      <button class="period-btn" id="periodBtn">📅 <span class="cur" id="periodCur">今月</span> ▾</button>
+      <div class="period-pop" id="periodPop"></div>
+    </div>
+
+    <div class="tools">
+      <button class="tbtn" id="btnExport">⬇ 書き出し</button>
+      <button class="tbtn" id="btnImport">⬆ 読み込み</button>
+      <button class="tbtn" id="btnReset">↺ 初期化</button>
+      <button class="tbtn primary" id="btnEdit">✎ 編集モード</button>
+      <input type="file" id="fileInput" accept="application/json" class="hidden-file" />
+    </div>
+
+    <div class="pill-period">
+      <span class="pp">📅 現在の対象期間 <span class="tg" id="pillTag">今月</span> <span class="rg" id="pillRange">—</span></span>
+      <span class="editmode-hint" style="color:var(--good);font-weight:800;align-items:center;gap:6px;">✎ 編集モード：数値・文章をクリックして直接書き換えできます</span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== FILTER BAR ========== -->
+<div class="filterbar">
+  <div class="fb-inner">
+    <span class="fb-title">🔎 期間で見る</span>
+    <select id="rangeStart" aria-label="開始月"></select>
+    <span style="color:var(--muted);font-weight:800;">〜</span>
+    <select id="rangeEnd" aria-label="終了月"></select>
+    <button class="go" id="rangeGo">この期間で見る</button>
+    <span class="hint">※ 任意の月〜月を選んで期間集計。月別・範囲は派生ビュー（保存対象外）です。</span>
+  </div>
+</div>
+
+<!-- ========== MAIN ========== -->
+<main id="main"></main>
+
+<footer class="foot">
+  <div class="fw">哲学を、未来へ残して良かった。</div>
+  <div>隼人CLUB 監督ダッシュボード ｜ 日本リアライズ株式会社</div>
+  <div style="margin-top:6px;">水谷哲也 監督のレガシーが、今この瞬間も社会に広がっています。</div>
+</footer>
+
+<script>
+"use strict";
+/* =========================================================
+   隼人CLUB 監督ダッシュボード  v1.0
+   単一HTMLファイル / Vanilla JS / Chart.js / localStorage
+   ========================================================= */
+const STORE_KEY = "hayato_owner_dashboard_v4";
+const PRESETS = ["今月","今四半期","年初来","全期間"];
+
+/* ---- 期間係数（フロー ff / 会員内訳 mf） ---- */
+const NOW = new Date(2026, 6, 4); // 2026-07-04 基準（月替わり検証しやすいよう固定。実運用では new Date() に変更可）
+const YTD_MONTHS = NOW.getMonth() + 1;         // 年初来の月数（7月=7）
+const PRESET_FF = {"今月":1, "今四半期":3, "年初来":YTD_MONTHS, "全期間":12};
+
+/* ================= 基準データ（=「今月」の単一の真実） ================= */
+const salesSeries = [3600000,4350000,5100000,5850000,6600000,7350000,7950000,8460000,8940000,9240000,9450000,9600000];
+const DEFAULTS = {
+  members:{ total:3200, newThisMonth:180, retention:92.5, churn:3.2 },
+  region:{
+    labels:["関東","関西","中部","九州・沖縄","東北","中国・四国","北海道"],
+    data:[1180,620,430,330,210,250,180]
+  },
+  age:{
+    labels:["20代","30代","40代","50代","60代","70代〜"],
+    male:[160,380,520,470,300,120],
+    female:[140,300,360,270,140,40]
+  },
+  ai:{
+    consultations:4200, monthly:4200, avgPerUser:1.3,
+    satisfaction:94, satResponses:1580,
+    categories:[
+      {name:"お金・家計", count:1180},
+      {name:"仕事・キャリア", count:820},
+      {name:"健康・メンタル", count:640},
+      {name:"人間関係", count:560},
+      {name:"家族・教育", count:430},
+      {name:"老後・資産形成", count:320},
+      {name:"その他", count:250}
+    ],
+    philosophy:[
+      {name:"人生は、自分で設計するもの", count:340},
+      {name:"社員の人生を、守り切る覚悟", count:300},
+      {name:"今日が、一番若い日", count:260},
+      {name:"数字は、嘘をつかない", count:190},
+      {name:"足るを知る者は富む", count:150}
+    ]
+  },
+  social:{
+    eduEnrolled:2400, lifePlans:1560, expertConsult:640,
+    marketUse:3820000, costSaved:18400000, donation:920000
+  },
+  ranks:[
+    {name:"ROOKIE",    note:"入会〜3ヶ月",       count:1050},
+    {name:"CHALLENGER",note:"設計書を描いた会員", count:820},
+    {name:"FIGHTER",   note:"半年継続・実践中",   count:610},
+    {name:"CONTENDER", note:"1年継続・成果あり",  count:410},
+    {name:"ELITE",     note:"2年継続・模範会員",  count:230},
+    {name:"CHAMPION",  note:"殿堂・伝道者",       count:80}
+  ],
+  ec:{
+    ecSales:3820000, ecOrders:1240, ecAov:3081,
+    products:[
+      {name:"健康サプリ「隼」", count:412},
+      {name:"限定プロテイン", count:318},
+      {name:"人生設計ノート", count:246},
+      {name:"オリジナルギア", count:158},
+      {name:"厳選書籍セット", count:106}
+    ]
+  },
+  video:{
+    videoViews:86400, videoCount:42, videoAvg:2057,
+    list:[
+      {name:"監督特別講話「守り切る覚悟」", count:9800},
+      {name:"人生設計の第一歩", count:7600},
+      {name:"お金の不安をゼロにする思考", count:6400},
+      {name:"家族と向き合う時間の作り方", count:5200},
+      {name:"逆境を力に変える習慣", count:4300}
+    ]
+  },
+  revenue:{
+    monthlySales:9600000, royalty:1440000, chairmanShare:960000, arpu:3000,
+    series:{
+      sales: salesSeries.slice(),
+      royalty: salesSeries.map(v=>Math.round(v*0.15)),
+      share:  salesSeries.map(v=>Math.round(v*0.10))
+    },
+    ltv:{ arpu:3000, monthsAvg:26, grossMargin:68 }
+  },
+  growth:{
+    members:[1200,1450,1700,1950,2200,2450,2650,2820,2980,3080,3150,3200],
+    aiRate:[42,45,48,51,54,57,60,62,64,66,68,70],
+    retention:[88,88.5,89,89.5,90,90.5,91,91.4,91.8,92,92.2,92.5],
+    eduRate:[30,33,36,39,42,45,48,50,52,54,56,58]
+  },
+  impact:[
+    {ic:"🎓", num:2400,  u:"名",   cap:"人生設計を学んだ受講者"},
+    {ic:"💬", num:38600, u:"件",   cap:"AIが受け止めた人生相談"},
+    {ic:"📋", num:1560,  u:"通",   cap:"描かれた人生設計書"},
+    {ic:"💰", num:184,   u:"百万円",cap:"会員家計の改善総額"},
+    {ic:"🤝", num:9200,  u:"件",   cap:"修復・改善された人間関係"},
+    {ic:"❤️", num:920,   u:"千円",  cap:"社会へ届けた寄付"}
+  ],
+  voices:[
+    {body:"AIに毎晩相談するうち、お金の不安が“見える化”されて消えました。設計書を家族に見せたら涙されました。", who:"40代・製造／Kさん", tag:"家計改善", stars:5},
+    {body:"監督の限定動画『守り切る覚悟』で目が覚めました。会社を辞めずに済んだのは隼人CLUBのおかげです。", who:"30代・営業／Tさん", tag:"キャリア", stars:5},
+    {body:"70歳で入会。老後の設計をAIと一緒に作り直し、毎日が楽しみになりました。", who:"70代・年金／Mさん", tag:"老後設計", stars:5},
+    {body:"夫婦の関係が冷え切っていましたが、相談を重ねて対話が戻りました。人生が変わりました。", who:"50代・主婦／Sさん", tag:"人間関係", stars:5}
+  ]
+};
+
+/* ================= セクション定義（ナビ用） ================= */
+const SECTIONS = [
+  {id:"sec-impact",  em:"🎯", title:"HAYATO IMPACT"},
+  {id:"sec-members", em:"📊", title:"会員状況"},
+  {id:"sec-ai",      em:"🥊", title:"AI利用状況"},
+  {id:"sec-social",  em:"🌱", title:"社会貢献の見える化"},
+  {id:"sec-rank",    em:"🏅", title:"会員ランク（階級）分布"},
+  {id:"sec-ec",      em:"🛒", title:"隼人マーケット（EC）"},
+  {id:"sec-video",   em:"🎬", title:"限定動画"},
+  {id:"sec-revenue", em:"💰", title:"収益管理"},
+  {id:"sec-growth",  em:"📈", title:"成長推移"},
+  {id:"sec-voices",  em:"💬", title:"会員の声"}
+];
+
+/* ================= 状態 ================= */
+let STORE = null;          // { 今月, 今四半期, 年初来, 全期間 }（永続）
+let DATA = null;           // 現在表示中の1セット（ポインタ）
+let currentView = "今月";  // "今月" | "M{n}" | "R{s}-{e}"
+let editMode = false;
+const charts = {};
+
+/* ================= ユーティリティ ================= */
+const clone = o => JSON.parse(JSON.stringify(o));
+const $ = (s,r=document)=>r.querySelector(s);
+const nf = n => Number(Math.round(n)).toLocaleString("ja-JP");
+const yen = n => "¥" + nf(n);
+const parseNum = s => { const v = parseFloat(String(s).replace(/[^0-9.\-]/g,"")); return isNaN(v)?0:v; };
+function yenShort(n){ // 大きい金額は「万円」表記
+  n = Math.round(n);
+  if(Math.abs(n) >= 100000) return (n/10000).toLocaleString("ja-JP",{maximumFractionDigits:1}) + "万円";
+  return "¥" + nf(n);
+}
+
+/* ---- 月インデックス→期間メタ（末尾12ヶ月ウィンドウ） ---- */
+function monthMeta(i){
+  // i=11 が当月。i=0 は11ヶ月前。
+  const d = new Date(NOW.getFullYear(), NOW.getMonth() - (11 - i), 1);
+  const y = d.getFullYear(), m = d.getMonth();
+  const from = new Date(y, m, 1);
+  const to = new Date(y, m + 1, 0);
+  return { y, m:m+1, label:`${y}年${m+1}月`, short:`${m+1}月`, from, to };
+}
+const fmtD = d => `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+
+/* ================= スケーリング（中核） ================= */
+/* c: 基準(今月)のクローン, ff: フロー係数, mf: 会員内訳係数
+   数値の「性質」で2分類して係数を掛ける。
+   スナップショット/累計（total, retention, churn, 単価, 満足度, LTV, impact, series, growth）は非スケール。 */
+function scaleData(c, ff, mf){
+  const rf = v => Math.round(v * ff);
+  const rm = v => Math.round(v * mf);
+
+  // --- フロー ---
+  c.members.newThisMonth = rf(c.members.newThisMonth);
+  c.ai.consultations     = rf(c.ai.consultations);
+  c.ai.satResponses      = rf(c.ai.satResponses);
+  c.ai.categories        = c.ai.categories.map(x=>({...x, count:rf(x.count)}));
+  c.ai.philosophy        = c.ai.philosophy.map(x=>({...x, count:rf(x.count)}));
+
+  c.social.eduEnrolled   = rf(c.social.eduEnrolled);
+  c.social.lifePlans     = rf(c.social.lifePlans);
+  c.social.expertConsult = rf(c.social.expertConsult);
+  c.social.marketUse     = rf(c.social.marketUse);
+  c.social.costSaved     = rf(c.social.costSaved);
+  c.social.donation      = rf(c.social.donation);
+
+  c.ec.ecSales           = rf(c.ec.ecSales);
+  c.ec.ecOrders          = rf(c.ec.ecOrders);
+  c.ec.products          = c.ec.products.map(x=>({...x, count:rf(x.count)}));
+
+  c.video.videoViews     = rf(c.video.videoViews);
+  c.video.list           = c.video.list.map(x=>({...x, count:rf(x.count)}));
+
+  c.revenue.monthlySales = rf(c.revenue.monthlySales);
+  c.revenue.royalty      = rf(c.revenue.royalty);
+  c.revenue.chairmanShare= rf(c.revenue.chairmanShare);
+
+  // --- 会員内訳 ---
+  c.region.data = c.region.data.map(rm);
+  c.age.male    = c.age.male.map(rm);
+  c.age.female  = c.age.female.map(rm);
+  c.ranks       = c.ranks.map(x=>({...x, count:rm(x.count)}));
+
+  // --- 派生（再計算） ---
+  c.ec.ecAov     = c.ec.ecOrders ? Math.round(c.ec.ecSales / c.ec.ecOrders) : c.ec.ecAov;
+  c.video.videoAvg = c.video.videoCount ? Math.round(c.video.videoViews / c.video.videoCount) : c.video.videoAvg;
+  return c;
+}
+
+/* ================= 4プリセット生成 ================= */
+function buildDefaultsAll(){
+  const base = clone(DEFAULTS);
+  return {
+    "今月":     clone(base),
+    "今四半期": scaleData(clone(base), PRESET_FF["今四半期"], 1),
+    "年初来":   scaleData(clone(base), PRESET_FF["年初来"], 1),
+    "全期間":   scaleData(clone(base), PRESET_FF["全期間"], 1)
+  };
+}
+
+/* ================= 月別ビュー ================= */
+function computeMonth(i){
+  const g = STORE["今月"].growth;
+  const cur = g.members[11] || 1;
+  const f = g.members[i] / cur;                 // フロー・会員とも会員規模比で近似
+  const c = scaleData(clone(STORE["今月"]), f, f);
+  // 実測値で上書き
+  c.members.total     = g.members[i];
+  c.members.retention = g.retention[i];
+  c.members.newThisMonth = i>0 ? Math.max(0, g.members[i]-g.members[i-1]) : Math.round(g.members[0]*0.12);
+  c.revenue.monthlySales = STORE["今月"].revenue.series.sales[i];
+  c.revenue.royalty      = STORE["今月"].revenue.series.royalty[i];
+  c.revenue.chairmanShare= STORE["今月"].revenue.series.share[i];
+  return c;
+}
+
+/* ================= 範囲ビュー ================= */
+function computeRange(s,e){
+  if(s>e){ const t=s; s=e; e=t; }
+  const g = STORE["今月"].growth;
+  const cur = g.members[11] || 1;
+  let sumF = 0; for(let m=s;m<=e;m++) sumF += g.members[m];
+  const ff = sumF / cur;                 // 期間の活動量合計比
+  const mf = g.members[e] / cur;         // 会員内訳は期末月
+  const c = scaleData(clone(STORE["今月"]), ff, mf);
+  // 実測値で上書き（精度担保）
+  const sum = arr => { let x=0; for(let m=s;m<=e;m++) x+=arr[m]; return x; };
+  c.revenue.monthlySales = sum(STORE["今月"].revenue.series.sales);
+  c.revenue.royalty      = sum(STORE["今月"].revenue.series.royalty);
+  c.revenue.chairmanShare= sum(STORE["今月"].revenue.series.share);
+  c.members.total     = g.members[e];
+  const prior = s>0 ? g.members[s-1] : g.members[0];
+  c.members.newThisMonth = Math.max(0, g.members[e] - prior);
+  c.members.retention = g.retention[e];
+  return c;
+}
+
+/* ================= 期間表示（タグ / いつ〜いつ） ================= */
+function periodInfo(v){
+  if(v.startsWith("M")){
+    const i = +v.slice(1); const mm = monthMeta(i);
+    return { tag: mm.label, from: mm.from, to: mm.to };
+  }
+  if(v.startsWith("R")){
+    const [s,e] = v.slice(1).split("-").map(Number);
+    const a = monthMeta(Math.min(s,e)), b = monthMeta(Math.max(s,e));
+    return { tag:`${a.label}〜${b.label}`, from:a.from, to:b.to };
+  }
+  const y = NOW.getFullYear(), m = NOW.getMonth();
+  if(v==="今月")   return { tag:"今月", from:new Date(y,m,1), to:new Date(y,m+1,0) };
+  if(v==="今四半期"){ const qs = Math.floor(m/3)*3; return { tag:"今四半期", from:new Date(y,qs,1), to:new Date(y,qs+3,0) }; }
+  if(v==="年初来") return { tag:"年初来", from:new Date(y,0,1), to:NOW };
+  return { tag:"全期間", from:new Date(2024,0,1), to:NOW }; // サービス開始 2024-01（固定）
+}
+function updatePeriod(){
+  const info = periodInfo(currentView);
+  const label = PRESETS.includes(currentView) ? currentView : info.tag;
+  $("#periodCur").textContent = label;
+  $("#pillTag").textContent = info.tag;
+  $("#pillRange").textContent = `${fmtD(info.from)} 〜 ${fmtD(info.to)}`;
+  document.querySelectorAll(".sec-range").forEach(el=>{
+    el.textContent = `${fmtD(info.from)}〜${fmtD(info.to)}`;
+  });
+  document.querySelectorAll("#periodPop .opt").forEach(b=>{
+    b.classList.toggle("active", b.dataset.v===currentView);
+  });
+}
+
+/* ================= 永続化 ================= */
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(STORE)); }catch(e){} }
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){ const o = JSON.parse(raw); if(o && o["今月"]) return o; }
+  }catch(e){}
+  return buildDefaultsAll();
+}
+
+/* ================= bind get/set（ドット記法パス） ================= */
+function getBind(path, root){
+  return path.split(".").reduce((o,k)=> (o==null?undefined:o[k]), root||DATA);
+}
+function setBind(path, val, root){
+  const keys = path.split(".");
+  const last = keys.pop();
+  const obj = keys.reduce((o,k)=> o[k], root||DATA);
+  const cur = obj[last];
+  obj[last] = (typeof cur === "number") ? val : val;
+}
+
+/* ================= セクション選択 ================= */
+function selectView(v){
+  currentView = v;
+  if(PRESETS.includes(v)) DATA = STORE[v];
+  else if(v.startsWith("M")) DATA = computeMonth(+v.slice(1));
+  else if(v.startsWith("R")){ const [s,e]=v.slice(1).split("-").map(Number); DATA = computeRange(s,e); }
+  renderAll();
+  updatePeriod();
+}
+
+/* ================= 描画：総括 ================= */
+function renderAll(){
+  const m = $("#main");
+  m.innerHTML =
+    secImpact() + secMembers() + secAI() + secSocial() + secRank() +
+    secEC() + secVideo() + secRevenue() + secGrowth() + secVoices();
+  buildCharts();
+  bindEditable();
+  setEditableState();
+  buildScrollSpy();
+}
+
+/* ---- 共通パーツ ---- */
+function secHead(id, em, title, sub){
+  return `<div class="sec-head">
+    <h2>${em} ${title}</h2>
+    <span class="sec-range"></span>
+    ${sub?`<span class="sec-sub">${sub}</span>`:""}
+  </div>`;
+}
+function editSpan(path, val, cls){
+  return `<span class="${cls||""}" data-bind="${path}" data-type="num">${val}</span>`;
+}
+function editText(path, val, cls){
+  return `<span class="${cls||""}" data-bind="${path}" data-type="text">${val}</span>`;
+}
+function kpiCard(o){
+  // o: {path, label, unit, val, delta, lowerIsBetter, money}
+  const d = o.delta;
+  let cls="flat", arrow="→";
+  if(d>0){ arrow="▲"; cls = o.lowerIsBetter ? "down":"up"; }
+  else if(d<0){ arrow="▼"; cls = o.lowerIsBetter ? "up":"down"; }
+  const deltaHtml = (d===null||d===undefined) ? "" :
+    `<span class="k-delta ${cls}">${arrow} 前期比 ${Math.abs(d)}%</span>`;
+  const valHtml = o.money
+    ? `<span class="num-red">${o.disp}</span>`
+    : `${editSpan(o.path, o.val, "num-red")}<span class="u">${o.unit||""}</span>`;
+  return `<div class="card kpi">
+    <div class="k-label">${o.label}</div>
+    <div class="k-val">${valHtml}</div>
+    ${deltaHtml}
+  </div>`;
+}
+function rankList(items, unit, pathBase){
+  const max = Math.max(...items.map(i=>i.count), 1);
+  return `<ul class="rank">` + items.map((it,idx)=>`
+    <li>
+      <span class="badge">${idx+1}</span>
+      <span class="r-name">${editText(`${pathBase}.${idx}.name`, it.name)}</span>
+      <span class="r-bar"><i style="width:${Math.max(6,Math.round(it.count/max*100))}%"></i></span>
+      <span class="r-count">${editSpan(`${pathBase}.${idx}.count`, nf(it.count))}<span class="u">${unit}</span></span>
+    </li>`).join("") + `</ul>`;
+}
+
+/* ---- 0. HAYATO IMPACT ---- */
+function secImpact(){
+  const cards = DATA.impact.map((x,i)=>`
+    <div class="impact-card">
+      <div class="ic">${x.ic}</div>
+      <div class="num">${editSpan(`impact.${i}.num`, nf(x.num))}<span class="u">${x.u}</span></div>
+      <div class="cap">${editText(`impact.${i}.cap`, x.cap)}</div>
+    </div>`).join("");
+  return `<section id="sec-impact">
+    ${secHead("sec-impact","🎯","HAYATO IMPACT","水谷哲也監督のレガシー総和（累計・全期間）")}
+    <div class="impact-grid">${cards}</div>
+  </section>`;
+}
+
+/* ---- 1. 会員状況 ---- */
+function secMembers(){
+  const mb = DATA.members;
+  const kpis = [
+    kpiCard({path:"members.total", label:"総会員数", unit:"名", val:nf(mb.total), delta:6}),
+    kpiCard({path:"members.newThisMonth", label:"新規会員（対象期間）", unit:"名", val:nf(mb.newThisMonth), delta:12}),
+    kpiCard({path:"members.retention", label:"継続率", unit:"%", val:mb.retention, delta:1}),
+    kpiCard({path:"members.churn", label:"解約率", unit:"%", val:mb.churn, delta:-8, lowerIsBetter:true})
+  ].join("");
+  return `<section id="sec-members">
+    ${secHead("sec-members","📊","会員状況")}
+    <div class="grid g4">${kpis}</div>
+    <div class="grid g2" style="margin-top:16px;">
+      <div class="card">
+        <h3 class="c-title">地域別 会員分布</h3>
+        <div class="chart-wrap"><canvas id="regionChart"></canvas></div>
+        ${editorPanel("region", DATA.region.labels.map((l,i)=>({label:l, path:`region.data.${i}`})))}
+      </div>
+      <div class="card">
+        <h3 class="c-title">年代 × 男女比</h3>
+        <div class="chart-wrap"><canvas id="ageChart"></canvas></div>
+        ${editorPanel("age",
+          DATA.age.labels.flatMap((l,i)=>[
+            {label:`${l}・男`, path:`age.male.${i}`},
+            {label:`${l}・女`, path:`age.female.${i}`}
+          ]))}
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ---- 2. AI利用状況 ---- */
+function secAI(){
+  const ai = DATA.ai;
+  const kpis = [
+    kpiCard({path:"ai.consultations", label:"AI相談件数（対象期間）", unit:"件", val:nf(ai.consultations), delta:15}),
+    kpiCard({path:"ai.monthly", label:"月あたり相談数", unit:"件", val:nf(ai.monthly), delta:8}),
+    kpiCard({path:"ai.avgPerUser", label:"1人あたり相談", unit:"件/人", val:ai.avgPerUser, delta:5})
+  ].join("");
+  return `<section id="sec-ai">
+    ${secHead("sec-ai","🥊","AI利用状況")}
+    <div class="grid g3">${kpis}</div>
+    <div class="grid g3" style="margin-top:16px;">
+      <div class="card">
+        <h3 class="c-title">相談カテゴリ ランキング</h3>
+        ${rankList(ai.categories, "件", "ai.categories")}
+      </div>
+      <div class="card">
+        <h3 class="c-title">ファンに好まれた哲学・格言</h3>
+        ${rankList(ai.philosophy, "回", "ai.philosophy")}
+      </div>
+      <div class="card">
+        <h3 class="c-title">AI相談 満足度</h3>
+        <div class="gauge-wrap">
+          <div class="chart-wrap sm" style="width:180px;height:180px;flex:0 0 auto;"><canvas id="satChart"></canvas></div>
+          <div>
+            <div class="gauge-num">${editSpan("ai.satisfaction", ai.satisfaction)}<small>%</small></div>
+            <div class="gauge-sub">回答数 ${editSpan("ai.satResponses", nf(ai.satResponses))} 件</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ---- 3. 社会貢献の見える化 ---- */
+function secSocial(){
+  const s = DATA.social;
+  const cards = [
+    {label:"人生設計を学んだ受講人数", val:nf(s.eduEnrolled), unit:"名", path:"social.eduEnrolled", d:11},
+    {label:"作成された人生設計書", val:nf(s.lifePlans), unit:"通", path:"social.lifePlans", d:14},
+    {label:"専門家への相談", val:nf(s.expertConsult), unit:"件", path:"social.expertConsult", d:9},
+    {label:"EC（マーケット）利用額", disp:yenShort(s.marketUse), path:"social.marketUse", d:7, money:true},
+    {label:"会員家計のコスト削減", disp:yenShort(s.costSaved), path:"social.costSaved", d:13, money:true},
+    {label:"社会への寄付", disp:yenShort(s.donation), path:"social.donation", d:20, money:true}
+  ].map(o=>{
+    if(o.money){
+      return `<div class="card kpi">
+        <div class="k-label">${o.label}</div>
+        <div class="k-val"><span style="-webkit-text-fill-color:var(--red);color:var(--red);font-weight:900;">¥</span>${editSpan(o.path, nf(getBind(o.path)), "num-red")}</div>
+        <div class="k-delta up">▲ 前期比 ${o.d}%</div>
+      </div>`;
+    }
+    return kpiCard({path:o.path, label:o.label, unit:o.unit, val:o.val, delta:o.d});
+  }).join("");
+  return `<section id="sec-social">
+    ${secHead("sec-social","🌱","社会貢献の見える化","隼人CLUBが社会に生んだ価値（対象期間）")}
+    <div class="grid g3">${cards}</div>
+  </section>`;
+}
+
+/* ---- 4. 会員ランク（階級）分布 ---- */
+function secRank(){
+  const max = Math.max(...DATA.ranks.map(r=>r.count),1);
+  const rows = DATA.ranks.map((r,i)=>`
+    <li>
+      <span class="badge">${i+1}</span>
+      <span class="r-name">
+        ${editText(`ranks.${i}.name`, r.name)}
+        <span style="color:var(--muted);font-weight:600;font-size:12px;margin-left:8px;">${editText(`ranks.${i}.note`, r.note)}</span>
+      </span>
+      <span class="r-bar"><i style="width:${Math.max(6,Math.round(r.count/max*100))}%"></i></span>
+      <span class="r-count">${editSpan(`ranks.${i}.count`, nf(r.count))}<span class="u">名</span></span>
+    </li>`).join("");
+  return `<section id="sec-rank">
+    ${secHead("sec-rank","🏅","会員ランク（階級）分布","ROOKIE〜CHAMPION の6階級")}
+    <div class="card"><ul class="rank">${rows}</ul></div>
+  </section>`;
+}
+
+/* ---- 5. 隼人マーケット（EC） ---- */
+function secEC(){
+  const ec = DATA.ec;
+  const kpis = [
+    `<div class="card kpi"><div class="k-label">EC売上（対象期間）</div><div class="k-val"><span class="num-red">${yenShort(ec.ecSales)}</span></div><div class="k-delta up">▲ 前期比 7%</div></div>`,
+    kpiCard({path:"ec.ecOrders", label:"注文数", unit:"件", val:nf(ec.ecOrders), delta:6}),
+    kpiCard({path:"ec.ecAov", label:"平均単価", unit:"円", val:nf(ec.ecAov), delta:1})
+  ].join("");
+  return `<section id="sec-ec">
+    ${secHead("sec-ec","🛒","隼人マーケット（EC）")}
+    <div class="grid g3">${kpis}</div>
+    <div class="card" style="margin-top:16px;">
+      <h3 class="c-title">よく買われている商品 ランキング</h3>
+      ${rankList(ec.products, "点", "ec.products")}
+    </div>
+  </section>`;
+}
+
+/* ---- 6. 限定動画 ---- */
+function secVideo(){
+  const v = DATA.video;
+  const kpis = [
+    kpiCard({path:"video.videoViews", label:"総視聴回数（対象期間）", unit:"回", val:nf(v.videoViews), delta:18}),
+    kpiCard({path:"video.videoCount", label:"公開本数", unit:"本", val:nf(v.videoCount), delta:4}),
+    kpiCard({path:"video.videoAvg", label:"1本あたり平均視聴", unit:"回", val:nf(v.videoAvg), delta:9})
+  ].join("");
+  return `<section id="sec-video">
+    ${secHead("sec-video","🎬","限定動画")}
+    <div class="grid g3">${kpis}</div>
+    <div class="card" style="margin-top:16px;">
+      <h3 class="c-title">視聴回数 ランキング</h3>
+      ${rankList(v.list, "回", "video.list")}
+    </div>
+  </section>`;
+}
+
+/* ---- 7. 収益管理 ---- */
+function secRevenue(){
+  const r = DATA.revenue;
+  const ltvVal = Math.round(r.ltv.arpu * r.ltv.monthsAvg * r.ltv.grossMargin/100);
+  const kpis = [
+    `<div class="card kpi"><div class="k-label">売上（対象期間）</div><div class="k-val"><span class="num-red">${yenShort(r.monthlySales)}</span></div><div class="k-delta up">▲ 前期比 6%</div></div>`,
+    `<div class="card kpi"><div class="k-label">ロイヤリティ</div><div class="k-val"><span class="num-red">${yenShort(r.royalty)}</span></div><div class="k-delta up">▲ 前期比 6%</div></div>`,
+    `<div class="card kpi"><div class="k-label">監督分配</div><div class="k-val"><span class="num-red">${yenShort(r.chairmanShare)}</span></div><div class="k-delta up">▲ 前期比 6%</div></div>`,
+    kpiCard({path:"revenue.arpu", label:"会員単価（ARPU）", unit:"円", val:nf(r.arpu), delta:2})
+  ].join("");
+  return `<section id="sec-revenue">
+    ${secHead("sec-revenue","💰","収益管理")}
+    <div class="grid g4">${kpis}</div>
+    <div class="grid g2" style="margin-top:16px;">
+      <div class="card">
+        <h3 class="c-title">年間 収益推移（売上・ロイヤリティ・監督分配）</h3>
+        <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+        ${editorPanel("revseries",
+          monthLabels().map((l,i)=>({label:`${l} 売上`, path:`revenue.series.sales.${i}`})))}
+      </div>
+      <div class="card">
+        <h3 class="c-title">LTV（顧客生涯価値）</h3>
+        <div style="display:flex;align-items:baseline;gap:8px;margin:6px 0 14px;">
+          <span class="num-red" style="font-size:40px;">${yen(ltvVal)}</span>
+          <span style="color:var(--muted);font-weight:700;">/ 1会員</span>
+        </div>
+        <div class="grid g3">
+          <div><div class="k-label">月額ARPU</div><div style="font-weight:900;font-size:20px;">${editSpan("revenue.ltv.arpu", nf(r.ltv.arpu))}<span class="u" style="font-size:12px;color:var(--muted);">円</span></div></div>
+          <div><div class="k-label">平均継続</div><div style="font-weight:900;font-size:20px;">${editSpan("revenue.ltv.monthsAvg", r.ltv.monthsAvg)}<span class="u" style="font-size:12px;color:var(--muted);">ヶ月</span></div></div>
+          <div><div class="k-label">粗利率</div><div style="font-weight:900;font-size:20px;">${editSpan("revenue.ltv.grossMargin", r.ltv.grossMargin)}<span class="u" style="font-size:12px;color:var(--muted);">%</span></div></div>
+        </div>
+        <div style="margin-top:14px;color:var(--muted);font-size:12.5px;">LTV ＝ 月額ARPU × 平均継続月数 × 粗利率</div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ---- 8. 成長推移 ---- */
+function secGrowth(){
+  return `<section id="sec-growth">
+    ${secHead("sec-growth","📈","成長推移","直近12ヶ月のトレンド")}
+    <div class="grid g2">
+      <div class="card">
+        <h3 class="c-title">会員数の推移</h3>
+        <div class="chart-wrap"><canvas id="growthMembersChart"></canvas></div>
+        ${editorPanel("gmembers", monthLabels().map((l,i)=>({label:l, path:`growth.members.${i}`})))}
+      </div>
+      <div class="card">
+        <h3 class="c-title">AI利用率・継続率・受講率（%）</h3>
+        <div class="chart-wrap"><canvas id="growthRatesChart"></canvas></div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ---- 9. 会員の声 ---- */
+function secVoices(){
+  const cards = DATA.voices.map((v,i)=>`
+    <div class="voice">
+      <button class="del" data-del="${i}" title="削除">🗑</button>
+      <div class="stars">${"★".repeat(v.stars)}${"☆".repeat(Math.max(0,5-v.stars))}</div>
+      <div class="body">${editText(`voices.${i}.body`, v.body)}</div>
+      <div class="who">${editText(`voices.${i}.who`, v.who)}<span class="tag">${editText(`voices.${i}.tag`, v.tag)}</span></div>
+    </div>`).join("");
+  return `<section id="sec-voices">
+    ${secHead("sec-voices","💬","会員の声","感謝・成功事例")}
+    <div class="voices">${cards}</div>
+    <button class="add-voice" id="addVoice">＋ 会員の声を追加</button>
+  </section>`;
+}
+
+/* ---- 数値エディタパネル ---- */
+function monthLabels(){ return Array.from({length:12}, (_,i)=>monthMeta(i).short); }
+function editorPanel(key, fields){
+  const rows = fields.map(f=>`
+    <div class="row">
+      <label>${f.label}</label>
+      <input type="number" data-editor="${f.path}" value="${getBind(f.path)}" />
+    </div>`).join("");
+  return `<div class="editor">
+    <div class="eh">✎ データを編集</div>
+    <div class="rows">${rows}</div>
+  </div>`;
+}
+
+/* ================= Chart.js ================= */
+Chart.defaults.font.family = "'Noto Sans JP',sans-serif";
+Chart.defaults.color = "#6b7280";
+function destroyCharts(){ Object.keys(charts).forEach(k=>{ try{charts[k].destroy();}catch(e){} delete charts[k]; }); }
+function buildCharts(){
+  destroyCharts();
+  const RED="#d4191f", REDS=["#d4191f","#e0565a","#8b0000","#c9a227","#b8860b","#e0a3a5","#5c6672"];
+
+  // 地域
+  if($("#regionChart")) charts.region = new Chart($("#regionChart"),{
+    type:"doughnut",
+    data:{ labels:DATA.region.labels, datasets:[{ data:DATA.region.data, backgroundColor:REDS, borderWidth:2, borderColor:"#fff" }]},
+    options:{ responsive:true, maintainAspectRatio:false, cutout:"58%",
+      plugins:{ legend:{ position:"right", labels:{ boxWidth:12, font:{size:12} } } } }
+  });
+
+  // 年代×男女
+  if($("#ageChart")) charts.age = new Chart($("#ageChart"),{
+    type:"bar",
+    data:{ labels:DATA.age.labels, datasets:[
+      { label:"男性", data:DATA.age.male, backgroundColor:"#d4191f", borderRadius:6 },
+      { label:"女性", data:DATA.age.female, backgroundColor:"#c9a227", borderRadius:6 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      scales:{ x:{ stacked:false, grid:{display:false} }, y:{ beginAtZero:true, grid:{color:"#f0f1f4"} } },
+      plugins:{ legend:{ position:"top" } } }
+  });
+
+  // 満足度ゲージ
+  if($("#satChart")){
+    const s = DATA.ai.satisfaction;
+    charts.sat = new Chart($("#satChart"),{
+      type:"doughnut",
+      data:{ datasets:[{ data:[s,100-s], backgroundColor:[RED,"#f0e0e0"], borderWidth:0 }]},
+      options:{ responsive:true, maintainAspectRatio:false, cutout:"72%", rotation:-90, circumference:360,
+        plugins:{ legend:{display:false}, tooltip:{enabled:false} } }
+    });
+  }
+
+  // 収益推移
+  if($("#revenueChart")){
+    const s = DATA.revenue.series;
+    charts.rev = new Chart($("#revenueChart"),{
+      data:{ labels:monthLabels(), datasets:[
+        { type:"bar", label:"売上", data:s.sales, backgroundColor:"rgba(212,25,31,.85)", borderRadius:5, order:3 },
+        { type:"line", label:"ロイヤリティ", data:s.royalty, borderColor:"#c9a227", backgroundColor:"#c9a227", tension:.35, borderWidth:2, pointRadius:2, order:1 },
+        { type:"line", label:"監督分配", data:s.share, borderColor:"#8b0000", backgroundColor:"#8b0000", tension:.35, borderWidth:2, pointRadius:2, order:0 }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        scales:{ x:{grid:{display:false}}, y:{ beginAtZero:true, grid:{color:"#f0f1f4"},
+          ticks:{ callback:v=> (v/10000)+"万" } } },
+        plugins:{ legend:{position:"top"}, tooltip:{ callbacks:{ label:c=>` ${c.dataset.label}: ${yen(c.parsed.y)}` } } } }
+    });
+  }
+
+  // 会員数推移
+  if($("#growthMembersChart")) charts.gm = new Chart($("#growthMembersChart"),{
+    type:"line",
+    data:{ labels:monthLabels(), datasets:[{ label:"総会員数", data:DATA.growth.members,
+      borderColor:RED, backgroundColor:"rgba(212,25,31,.10)", fill:true, tension:.35, borderWidth:2.5, pointRadius:2 }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      scales:{ x:{grid:{display:false}}, y:{ beginAtZero:true, grid:{color:"#f0f1f4"} } },
+      plugins:{ legend:{display:false} } }
+  });
+
+  // 各種率
+  if($("#growthRatesChart")) charts.gr = new Chart($("#growthRatesChart"),{
+    type:"line",
+    data:{ labels:monthLabels(), datasets:[
+      { label:"AI利用率", data:DATA.growth.aiRate, borderColor:"#d4191f", tension:.35, borderWidth:2, pointRadius:2 },
+      { label:"継続率", data:DATA.growth.retention, borderColor:"#c9a227", tension:.35, borderWidth:2, pointRadius:2 },
+      { label:"受講率", data:DATA.growth.eduRate, borderColor:"#5c6672", tension:.35, borderWidth:2, pointRadius:2 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      scales:{ x:{grid:{display:false}}, y:{ beginAtZero:true, max:100, grid:{color:"#f0f1f4"}, ticks:{callback:v=>v+"%"} } },
+      plugins:{ legend:{position:"top"} } }
+  });
+}
+
+/* ================= 編集の結線 ================= */
+function bindEditable(){
+  // インライン contenteditable → blur で保存
+  document.querySelectorAll("#main [data-bind]").forEach(el=>{
+    el.addEventListener("focusout", onInlineEdit);
+  });
+  // 数値エディタパネル → change で保存
+  document.querySelectorAll("#main [data-editor]").forEach(inp=>{
+    inp.addEventListener("change", onEditorChange);
+  });
+  // 会員の声 追加/削除
+  const add = $("#addVoice");
+  if(add) add.addEventListener("click", ()=>{
+    if(!isPersistable()){ alert("派生ビュー（月別・範囲）では追加できません。プリセット期間に切り替えてください。"); return; }
+    DATA.voices.push({body:"新しい会員の声をここに入力…", who:"◯代・職業／◯さん", tag:"タグ", stars:5});
+    save(); renderAll(); setTimeout(setEditableState,0);
+  });
+  document.querySelectorAll("#main [data-del]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if(!isPersistable()){ alert("派生ビューでは削除できません。"); return; }
+      DATA.voices.splice(+b.dataset.del,1); save(); renderAll(); setTimeout(setEditableState,0);
+    });
+  });
+}
+function isPersistable(){ return PRESETS.includes(currentView); }
+function onInlineEdit(e){
+  const el = e.currentTarget;
+  const path = el.dataset.bind, type = el.dataset.type;
+  let val;
+  if(type==="num"){ val = parseNum(el.textContent); }
+  else { val = el.textContent.trim(); }
+  setBind(path, val);
+  if(isPersistable()) save();
+  renderAll(); setTimeout(setEditableState,0);
+}
+function onEditorChange(e){
+  const inp = e.currentTarget;
+  setBind(inp.dataset.editor, parseNum(inp.value));
+  // 派生を再計算（ARPU/AOV/平均視聴など）
+  DATA.ec.ecAov = DATA.ec.ecOrders ? Math.round(DATA.ec.ecSales/DATA.ec.ecOrders) : DATA.ec.ecAov;
+  DATA.video.videoAvg = DATA.video.videoCount ? Math.round(DATA.video.videoViews/DATA.video.videoCount) : DATA.video.videoAvg;
+  if(isPersistable()) save();
+  renderAll(); setTimeout(setEditableState,0);
+}
+function setEditableState(){
+  document.querySelectorAll("#main [data-bind]").forEach(el=>{
+    el.setAttribute("contenteditable", editMode ? "true" : "false");
+  });
+}
+
+/* ================= UI 配線 ================= */
+function buildPeriodMenu(){
+  const pop = $("#periodPop");
+  let html = `<div class="grp">プリセット</div>`;
+  PRESETS.forEach(p=> html += `<button class="opt" data-v="${p}">${p}</button>`);
+  html += `<div class="grp">月別</div>`;
+  for(let i=11;i>=0;i--){ const mm=monthMeta(i); html += `<button class="opt" data-v="M${i}">${mm.label}</button>`; }
+  pop.innerHTML = html;
+  pop.querySelectorAll(".opt").forEach(b=>{
+    b.addEventListener("click", ()=>{ selectView(b.dataset.v); pop.classList.remove("open"); });
+  });
+}
+function buildRangeSelectors(){
+  const s=$("#rangeStart"), e=$("#rangeEnd");
+  let opt="";
+  for(let i=0;i<12;i++){ opt += `<option value="${i}">${monthMeta(i).label}</option>`; }
+  s.innerHTML=opt; e.innerHTML=opt;
+  s.value="6"; e.value="11";
+  $("#rangeGo").addEventListener("click", ()=>{
+    selectView(`R${s.value}-${e.value}`);
+  });
+}
+function buildNav(){
+  const wrap=$("#navLinks");
+  wrap.innerHTML = SECTIONS.map(s=>`<a href="#${s.id}"><span class="em">${s.em}</span>${s.title}</a>`).join("");
+  wrap.querySelectorAll("a").forEach(a=>a.addEventListener("click", closeDrawer));
+}
+let spyObserver=null;
+function buildScrollSpy(){
+  if(spyObserver) spyObserver.disconnect();
+  spyObserver = new IntersectionObserver(entries=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        document.querySelectorAll("#navLinks a").forEach(a=>{
+          a.classList.toggle("active", a.getAttribute("href")==="#"+en.target.id);
+        });
+      }
+    });
+  }, { rootMargin:"-45% 0px -50% 0px", threshold:0 });
+  document.querySelectorAll("main section").forEach(s=>spyObserver.observe(s));
+}
+function openDrawer(){ $("#drawer").classList.add("open"); $("#overlay").classList.add("open"); }
+function closeDrawer(){ $("#drawer").classList.remove("open"); $("#overlay").classList.remove("open"); }
+
+function toggleEdit(){
+  editMode = !editMode;
+  document.body.classList.toggle("edit", editMode);
+  const b=$("#btnEdit");
+  b.classList.toggle("on", editMode);
+  b.textContent = editMode ? "✓ 編集を終了" : "✎ 編集モード";
+  setEditableState();
+}
+function doExport(){
+  const blob = new Blob([JSON.stringify(STORE,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const d = NOW;
+  a.href=url; a.download=`hayato-dashboard_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+function doImport(file){
+  const rd = new FileReader();
+  rd.onload = ()=>{
+    try{
+      const o = JSON.parse(rd.result);
+      if(!o || !o["今月"]) throw 0;
+      STORE = o; save(); selectView("今月");
+      alert("読み込みました。");
+    }catch(e){ alert("読み込みに失敗しました。正しいバックアップJSONを選んでください。"); }
+  };
+  rd.readAsText(file);
+}
+function doReset(){
+  if(!confirm("すべての編集内容を消して初期値に戻します。よろしいですか？")) return;
+  localStorage.removeItem(STORE_KEY);
+  STORE = buildDefaultsAll();
+  selectView("今月");
+}
+
+/* ================= 初期化 ================= */
+function init(){
+  STORE = load();
+  buildPeriodMenu();
+  buildRangeSelectors();
+  buildNav();
+  selectView("今月");
+
+  // header events
+  $("#periodBtn").addEventListener("click", (e)=>{ e.stopPropagation(); $("#periodPop").classList.toggle("open"); });
+  document.addEventListener("click", (e)=>{ if(!e.target.closest(".period-menu")) $("#periodPop").classList.remove("open"); });
+  $("#btnEdit").addEventListener("click", toggleEdit);
+  $("#btnExport").addEventListener("click", doExport);
+  $("#btnImport").addEventListener("click", ()=>$("#fileInput").click());
+  $("#fileInput").addEventListener("change", (e)=>{ if(e.target.files[0]) doImport(e.target.files[0]); e.target.value=""; });
+  $("#btnReset").addEventListener("click", doReset);
+  $("#burger").addEventListener("click", openDrawer);
+  $("#navClose").addEventListener("click", closeDrawer);
+  $("#overlay").addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeDrawer(); });
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
