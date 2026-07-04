@@ -874,7 +874,6 @@ function secVideo(){
 /* ---- 7. 収益管理 ---- */
 function secRevenue(){
   const r = DATA.revenue;
-  const ltvVal = Math.round(r.ltv.arpu * r.ltv.monthsAvg * r.ltv.grossMargin/100);
   const kpis = [
     `<div class="card kpi"><div class="k-label">売上（対象期間）</div><div class="k-val"><span class="num-red">${yenShort(r.monthlySales)}</span></div><div class="k-delta up">▲ 前期比 6%</div></div>`,
     `<div class="card kpi"><div class="k-label">ロイヤリティ</div><div class="k-val"><span class="num-red">${yenShort(r.royalty)}</span></div><div class="k-delta up">▲ 前期比 6%</div></div>`,
@@ -884,25 +883,12 @@ function secRevenue(){
   return `<section id="sec-revenue">
     ${secHead("sec-revenue","💰","収益管理")}
     <div class="grid g4">${kpis}</div>
-    <div class="grid g2" style="margin-top:16px;">
+    <div style="margin-top:16px;">
       <div class="card">
         <h3 class="c-title">年間 収益推移（売上・ロイヤリティ・監督分配）</h3>
         <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
         ${editorPanel("revseries",
           monthLabels().map((l,i)=>({label:`${l} 売上`, path:`revenue.series.sales.${i}`})))}
-      </div>
-      <div class="card">
-        <h3 class="c-title">LTV（顧客生涯価値）</h3>
-        <div style="display:flex;align-items:baseline;gap:8px;margin:6px 0 14px;">
-          <span class="num-red" style="font-size:40px;">${yen(ltvVal)}</span>
-          <span style="color:var(--muted);font-weight:700;">/ 1会員</span>
-        </div>
-        <div class="grid g3">
-          <div><div class="k-label">月額ARPU</div><div style="font-weight:900;font-size:20px;">${editSpan("revenue.ltv.arpu", nf(r.ltv.arpu))}<span class="u" style="font-size:12px;color:var(--muted);">円</span></div></div>
-          <div><div class="k-label">平均継続</div><div style="font-weight:900;font-size:20px;">${editSpan("revenue.ltv.monthsAvg", r.ltv.monthsAvg)}<span class="u" style="font-size:12px;color:var(--muted);">ヶ月</span></div></div>
-          <div><div class="k-label">粗利率</div><div style="font-weight:900;font-size:20px;">${editSpan("revenue.ltv.grossMargin", r.ltv.grossMargin)}<span class="u" style="font-size:12px;color:var(--muted);">%</span></div></div>
-        </div>
-        <div style="margin-top:14px;color:var(--muted);font-size:12.5px;">LTV ＝ 月額ARPU × 平均継続月数 × 粗利率</div>
       </div>
     </div>
   </section>`;
@@ -990,7 +976,7 @@ function buildCharts(){
     charts.sat = new Chart($("#satChart"),{
       type:"doughnut",
       data:{ datasets:[{ data:[s,100-s], backgroundColor:[RED,"#f0e0e0"], borderWidth:0 }]},
-      options:{ responsive:true, maintainAspectRatio:false, cutout:"72%", rotation:-90, circumference:360,
+      options:{ responsive:true, maintainAspectRatio:false, cutout:"72%", rotation:0, circumference:360,
         plugins:{ legend:{display:false}, tooltip:{enabled:false} } }
     });
   }
