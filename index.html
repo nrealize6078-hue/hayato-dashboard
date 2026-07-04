@@ -58,7 +58,7 @@ header.top{
 }
 .burger span{width:20px;height:2px;background:var(--text);border-radius:2px;}
 .brand{display:flex;align-items:center;gap:12px;min-width:0;}
-.brand .logo-img{height:46px;width:auto;display:block;}
+.brand .logo-img{height:54px;width:auto;display:block;}
 .brand .logo-fallback{display:none;align-items:center;gap:10px;}
 .brand .logo-fallback .mk{height:44px;width:44px;}
 .wordmark{font-family:var(--serif);font-weight:800;font-size:26px;letter-spacing:.02em;
@@ -157,20 +157,22 @@ section{margin-top:34px;scroll-margin-top:140px;}
 /* ranking list */
 .rank{list-style:none;margin:0;padding:0;}
 .rank li{
-  display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px dashed var(--line);
+  display:grid;
+  grid-template-columns:26px clamp(110px,34%,300px) 1fr 88px;
+  align-items:center;column-gap:12px;padding:10px 6px;border-bottom:1px dashed var(--line);
 }
 .rank li:last-child{border-bottom:none;}
 .rank .badge{
-  width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
   font-weight:900;font-size:13px;color:#fff;background:#c3c7cd;
 }
 .rank li:nth-child(1) .badge{background:linear-gradient(145deg,var(--gold-3),var(--gold-deep));color:#3a2c00;box-shadow:0 3px 8px rgba(201,162,39,.35);}
 .rank li:nth-child(2) .badge{background:linear-gradient(145deg,#d9dde3,#a7adb6);}
 .rank li:nth-child(3) .badge{background:linear-gradient(145deg,#e6b98a,#b5793f);}
-.rank .r-name{flex:1 1 auto;font-weight:700;font-size:14.5px;min-width:0;}
-.rank .r-bar{height:8px;border-radius:6px;background:var(--red-soft);position:relative;flex:1.4 1 0;overflow:hidden;}
+.rank .r-name{font-weight:700;font-size:14.5px;min-width:0;}
+.rank .r-bar{height:8px;border-radius:6px;background:var(--red-soft);position:relative;overflow:hidden;}
 .rank .r-bar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--red),var(--red-deep));border-radius:6px;}
-.rank .r-count{flex:0 0 auto;font-weight:900;font-variant-numeric:tabular-nums;min-width:74px;text-align:right;}
+.rank .r-count{font-weight:900;font-variant-numeric:tabular-nums;text-align:right;}
 .rank .r-count .u{font-size:11px;color:var(--muted);font-weight:700;margin-left:3px;}
 
 /* gauge */
